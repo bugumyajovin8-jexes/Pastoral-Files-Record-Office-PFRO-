@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="sw" class="light-mode">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <!-- iOS ignores the manifest's icons and reads this instead. -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PFRO — Pastoral Files Record Office</title>
+    <meta name="theme-color" content="#F8FAFC" />
+    <meta name="description" content="Pastoral Files Record Office — Usimamizi wa Kanisa" />
+    <!-- Home-screen launch on iPhone. The status bar stays `default`, not
+         `black-translucent`: this app has no safe-area padding, so a translucent
+         bar would draw the header underneath the clock and the notch. -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="PFRO" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

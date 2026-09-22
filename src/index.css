@@ -1,0 +1,301 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ============================================================================
+   PFRO design tokens
+   ============================================================================
+   The values below are the DARK theme. `:root.light-mode` overrides them.
+
+   Two rules keep the two themes honest:
+
+   1. A colour used as TEXT has an `-on` variant that is legible on that
+      theme's surfaces. The vivid brand colours score 7.5:1 on dark navy but
+      only ~2.1:1 on white, so light mode must use darkened variants. Never put
+      `--color-teal` on a surface as text — use `--color-teal-on`.
+
+   2. Anything sitting on a brand-coloured FILL uses `--color-on-accent`, which
+      is deliberately NOT theme-dependent: the fill does not change with the
+      theme, so its label must not either.
+   ============================================================================ */
+
+@theme {
+  /* Sora and Noto Sans are fetched from Google Fonts. This app is used offline,
+     where that request fails — the fallbacks are listed explicitly so the
+     layout degrades to a known system face instead of an arbitrary one. */
+  --font-display: "Sora", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-sans:    "Noto Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono:    ui-monospace, "Cascadia Mono", Menlo, monospace;
+
+  /* Surfaces */
+  --color-ink:      #0F1623;
+  --color-ink-800:  #151E2E;
+  --color-ink-700:  #1C2840;
+  --color-ink-600:  #243050;
+  --color-ink-500:  #2E3D62;
+  --color-surface:  #1A2236;
+  --color-surface-2:#202B42;
+  --color-border:   #263654;
+
+  /* Brand fills — identical in both themes */
+  --color-teal:     #00C9A7;
+  --color-teal-dim: #00A88C;
+  --color-teal-glow:#00C9A730;
+  --color-gold:     #F5A623;
+  --color-rose:     #FF6B8A;
+  --color-sky:      #38BDF8;
+  --color-violet:   #A78BFA;
+
+  /* Brand as TEXT on a surface. Dark theme: the fills already pass (7.5:1+). */
+  --color-teal-on:   #00C9A7;
+  --color-gold-on:   #F5A623;
+  --color-rose-on:   #FF6B8A;
+  --color-sky-on:    #38BDF8;
+  --color-violet-on: #A78BFA;
+
+  /* Label colour for anything on a brand fill. Fixed: 8.55:1 on teal. */
+  --color-on-accent: #08121F;
+
+  /* Text. `muted` was #4E6080 — 2.50:1, below AA even at large sizes. */
+  --color-text:       #E8EEF8;
+  --color-text-dim:   #A9BAD4;  /* 8.4:1 on surface */
+  --color-text-muted: #8A9CBC;  /* 5.7:1 on surface */
+
+  /* Type scale. 11px is the floor — the old UI used 8px and 9px in 53 places,
+     which is unreadable on a phone at arm's length. */
+  --text-micro: 11px;
+  --text-caption: 12px;
+  --text-body-sm: 13px;
+  --text-body: 14px;
+  --text-lead: 16px;
+  --text-title: 20px;
+  --text-display: 24px;
+
+  /* Radii — the UI previously mixed 10/12/14/16/20/22/28px arbitrarily. */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+}
+
+:root.light-mode {
+  --color-ink:      #F6F8FB;
+  --color-ink-800:  #FFFFFF;
+  --color-ink-700:  #E9EEF5;
+  --color-ink-600:  #D4DDE9;
+  --color-ink-500:  #9FAEC3;
+  --color-surface:  #FFFFFF;
+  --color-surface-2:#F2F5F9;
+  --color-border:   #DDE4EE;
+
+  /* Darkened so they clear 4.5:1 on white. Measured, not eyeballed. */
+  --color-teal-on:   #00745F;  /* 5.73:1 */
+  --color-gold-on:   #A85F00;  /* 4.88:1 */
+  --color-rose-on:   #C2185B;  /* 5.87:1 */
+  --color-sky-on:    #0369A1;  /* 5.93:1 */
+  --color-violet-on: #6D28D9;  /* 7.10:1 */
+
+  --color-text:       #0F1623;
+  --color-text-dim:   #414F66;  /* 8.3:1 */
+  --color-text-muted: #586780;  /* 5.7:1 */
+}
+
+/* Respect the OS preference on first visit, before a choice is stored. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light-mode):not(.dark-mode) { color-scheme: dark; }
+}
+
+* { -ms-overflow-style: none; scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background: var(--color-ink);
+  color: var(--color-text);
+  /* Stops iOS Safari inflating text in landscape and breaking the layout. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Visible keyboard focus. There was none at all before — the app was
+   unusable without a pointer. :focus-visible keeps it off mouse clicks. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------------------------------------------------------------- motion -- */
+@keyframes fadeUp   { from { opacity:0; transform: translateY(10px);} to { opacity:1; transform:none; } }
+@keyframes fadeIn   { from { opacity:0 } to { opacity:1 } }
+@keyframes pulseGlow{ 0%,100% { box-shadow:0 0 0 0 var(--color-teal-glow);} 50% { box-shadow:0 0 0 8px #00C9A710; } }
+
+.anim-fade-up  { animation: fadeUp 0.35s ease both; }
+.animate-fadeIn{ animation: fadeIn 0.25s ease both; }  /* was referenced, never defined */
+.anim-glow     { animation: pulseGlow 2.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --------------------------------------------------------------- surfaces -- */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.card-sm {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+/* Light mode has almost no border contrast, so cards need a shadow to read as
+   raised. Dark mode uses the border alone — shadows are invisible there. */
+:root.light-mode .card,
+:root.light-mode .card-sm {
+  box-shadow: 0 1px 2px rgb(15 22 35 / 0.04), 0 2px 8px rgb(15 22 35 / 0.04);
+}
+
+/* ------------------------------------------------------------------ forms -- */
+.input-dark {
+  background: var(--color-ink);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  /* 16px prevents iOS Safari zooming the page on focus. */
+  font-size: 16px;
+  padding: 13px 14px;
+  width: 100%;
+  min-height: 48px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+:root.light-mode .input-dark { background: var(--color-surface); }
+.input-dark::placeholder { color: var(--color-text-muted); }
+
+/* For a field with an icon sitting inside it, on the left.
+   Tailwind's `pl-10` cannot do this job: everything `@import "tailwindcss"`
+   brings in lands in a cascade layer, and .input-dark above is UNLAYERED —
+   unlayered rules beat layered ones no matter how specific the layered one is.
+   So .input-dark's own `padding: 13px 14px` always won and the placeholder ran
+   underneath the icon. Setting it here, in the same unlayered block, works. */
+.input-dark.has-icon { padding-left: 44px; }
+.input-dark:focus {
+  border-color: var(--color-teal);
+  box-shadow: 0 0 0 3px var(--color-teal-glow);
+}
+
+/* ---------------------------------------------------------------- buttons -- */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-teal), var(--color-teal-dim));
+  /* Was var(--color-ink): near-white in light mode, 2.02:1 on teal. */
+  color: var(--color-on-accent);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-body);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  min-height: 48px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary:hover  { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.45; pointer-events: none; }
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-body);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  min-height: 48px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s;
+}
+.btn-secondary:hover { background: var(--color-ink-800); }
+
+/* Icon-only controls. 24px hit areas fail WCAG 2.5.8 (24px min) and Apple's
+   44px guidance; this floors them without changing the visual size. */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+.btn-icon:hover { background: var(--color-ink-800); color: var(--color-text); }
+.btn-icon-danger:hover { background: color-mix(in srgb, var(--color-rose) 12%, transparent); color: var(--color-rose-on); }
+
+/* ----------------------------------------------------------------- labels -- */
+/* The uppercase micro-label repeated inline on almost every screen. */
+.label-eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.tag-zaka   { background: color-mix(in srgb, var(--color-teal) 14%, transparent);   color: var(--color-teal-on);   border: 1px solid color-mix(in srgb, var(--color-teal) 30%, transparent); }
+.tag-sadaka { background: color-mix(in srgb, var(--color-gold) 16%, transparent);   color: var(--color-gold-on);   border: 1px solid color-mix(in srgb, var(--color-gold) 32%, transparent); }
+.tag-other  { background: color-mix(in srgb, var(--color-sky) 14%, transparent);    color: var(--color-sky-on);    border: 1px solid color-mix(in srgb, var(--color-sky) 30%, transparent); }
+
+/* ------------------------------------------------------------ status notes -- */
+/* Replaces the hardcoded Tailwind palette (bg-emerald-50 / text-red-800 etc.)
+   that was pinned to one theme and unreadable in the other. */
+.note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+}
+.note-success { background: color-mix(in srgb, var(--color-teal) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-teal) 28%, transparent); color: var(--color-teal-on); }
+.note-error   { background: color-mix(in srgb, var(--color-rose) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-rose) 28%, transparent); color: var(--color-rose-on); }
+.note-warning { background: color-mix(in srgb, var(--color-gold) 14%, transparent); border: 1px solid color-mix(in srgb, var(--color-gold) 30%, transparent); color: var(--color-gold-on); }
+
+.bottom-nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-teal), var(--color-sky));
+  border-radius: 0 0 4px 4px;
+}
